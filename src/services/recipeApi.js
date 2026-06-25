@@ -246,6 +246,9 @@ const MOCK_RECIPES = [
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || "";
 const BASE_URL = "https://api.spoonacular.com/recipes";
 
+// Fast In-Memory App Cache
+const apiResponseCache = new Map();
+
 /**
  * Cleanly normalizes, caches, and queries recipes by ingredient list
  * from the live Spoonacular API findByIngredients endpoint.
@@ -253,85 +256,75 @@ const BASE_URL = "https://api.spoonacular.com/recipes";
 export async function fetchRecipesFromPantry(userIngredients) {
   if (!userIngredients || userIngredients.length === 0) return [];
 
-  // 1. Normalize and clean the query items to lowercase comma-separated values
-  const cleanIngredients = userIngredients
-    .map(i => i.toLowerCase().trim())
-    .filter(Boolean);
-    
-  const cacheKey = [...cleanIngredients].sort().join(",");
+  // Normalize quickly using a single-pass join
+  const cacheKey = userIngredients.map(i => i.toLowerCase().trim()).sort().join(",");
   
-  // 2. Evaluate Session Cache
-  const cachedData = sessionStorage.getItem(cacheKey);
-  if (cachedData) {
-    return JSON.parse(cachedData);
+  // High-speed memory bypass check (Bypasses network completely)
+  if (apiResponseCache.has(cacheKey)) {
+    return apiResponseCache.get(cacheKey);
   }
 
-  // Double check if the API key is loading properly
-  if (!API_KEY || API_KEY === "your_api_key_here") {
-    console.error("VITE_SPOONACULAR_API_KEY is missing or invalid in .env");
-    return [];
-  }
+  if (!API_KEY || API_KEY === "your_api_key_here") return [];
 
   try {
-    // 3. Request live data from Spoonacular findByIngredients endpoint
     const url = `${BASE_URL}/findByIngredients?ingredients=${encodeURIComponent(cacheKey)}&number=20&ranking=1&ignorePantry=true&apiKey=${API_KEY}`;
     const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Server returned status code: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
     const rawData = await response.json();
     
-    if (!rawData || rawData.length === 0) {
-      console.warn("Spoonacular returned 0 recipes for this combination.");
-      return [];
-    }
-
-    // 4. Structural data mapping transformation
+    // Fast single-pass optimization loop
     const formattedRecipes = rawData.map(item => {
-      const parsedIngredients = [
-        ...item.usedIngredients.map(i => i.name),
-        ...item.missedIngredients.map(i => i.name)
-      ];
+      const parsedIngredients = [];
+      
+      // Inline push loops are significantly faster than nested map/spread chains
+      for (let i = 0; i < item.usedIngredients.length; i++) parsedIngredients.push(item.usedIngredients[i].name);
+      for (let i = 0; i < item.missedIngredients.length; i++) parsedIngredients.push(item.missedIngredients[i].name);
 
       // Local heuristics for dietary preferences flags since findByIngredients lacks them
-      const ingredientsLower = parsedIngredients.map(ing => ing.toLowerCase());
-      const hasMeat = ingredientsLower.some(ing => 
-        /\b(chicken|breast|beef|pork|shrimp|fish|tuna|salmon|turkey|bacon|sausage|meat|pepperoni|ham|steak|lamb|anchov|crab|lobster)\b/.test(ing)
-      );
-      const hasDairyOrEgg = ingredientsLower.some(ing => 
-        /\b(cheese|milk|butter|egg|yogurt|cream|mozzarella|parmesan|honey|whey|gelatin|ghee)\b/.test(ing)
-      );
-      const hasGluten = ingredientsLower.some(ing => 
-        /\b(wheat|flour|bread|pasta|spaghetti|crust|barley|rye|noodle|couscous|semolina)\b/.test(ing)
-      );
-      const hasHighCarbs = ingredientsLower.some(ing => 
-        /\b(wheat|flour|bread|pasta|spaghetti|crust|barley|rye|noodle|rice|oats|banana|sugar|honey|maple|potato|corn|tortilla|chickpea|lentil|pea|bean)\b/.test(ing)
-      );
-      
+      let hasMeat = false;
+      let hasDairyOrEgg = false;
+      let hasGluten = false;
+      let hasHighCarbs = false;
+
+      const meatRegex = /\b(chicken|breast|beef|pork|shrimp|fish|tuna|salmon|turkey|bacon|sausage|meat|pepperoni|ham|steak|lamb|anchov|crab|lobster)\b/i;
+      const dairyEggRegex = /\b(cheese|milk|butter|egg|yogurt|cream|mozzarella|parmesan|honey|whey|gelatin|ghee)\b/i;
+      const glutenRegex = /\b(wheat|flour|bread|pasta|spaghetti|crust|barley|rye|noodle|couscous|semolina)\b/i;
+      const highCarbsRegex = /\b(wheat|flour|bread|pasta|spaghetti|crust|barley|rye|noodle|rice|oats|banana|sugar|honey|maple|potato|corn|tortilla|chickpea|lentil|pea|bean)\b/i;
+
+      for (let i = 0; i < parsedIngredients.length; i++) {
+        const ingLower = parsedIngredients[i].toLowerCase();
+        if (!hasMeat && meatRegex.test(ingLower)) hasMeat = true;
+        if (!hasDairyOrEgg && dairyEggRegex.test(ingLower)) hasDairyOrEgg = true;
+        if (!hasGluten && glutenRegex.test(ingLower)) hasGluten = true;
+        if (!hasHighCarbs && highCarbsRegex.test(ingLower)) hasHighCarbs = true;
+      }
+
       return {
         id: item.id,
         name: item.title,
         image: item.image,
         ingredients: parsedIngredients,
-        prepTime: "30 mins",    // Default fallback, overwritten by lazy-loaded details
-        servings: 4,            // Default fallback, overwritten by lazy-loaded details
-        difficulty: "Medium",   // Default fallback, overwritten by lazy-loaded details
+        prepTime: "30 mins",
+        servings: 4,
+        difficulty: "Medium",
         isVegetarian: !hasMeat,
         isVegan: !hasMeat && !hasDairyOrEgg,
         isGlutenFree: !hasGluten,
         isKeto: !hasHighCarbs,
+        instructions: item.instructions || ["Enjoy this delicious recipe!"],
         ...calculateMatch(userIngredients, parsedIngredients)
       };
     });
 
     const finalResults = sortRecipes(formattedRecipes);
-    sessionStorage.setItem(cacheKey, JSON.stringify(finalResults));
+    
+    // Commit directly to high-speed memory mapping
+    apiResponseCache.set(cacheKey, finalResults);
     return finalResults;
 
   } catch (error) {
-    console.error("Network interface breakdown during API fetch:", error);
+    console.error("Fast API pipeline error:", error);
     return [];
   }
 }

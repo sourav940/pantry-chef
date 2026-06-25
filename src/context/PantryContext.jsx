@@ -7,7 +7,7 @@ export const PantryProvider = ({ children }) => {
   const [ingredients, setIngredients] = useState(() => {
     try {
       const saved = localStorage.getItem('pantry_ingredients');
-      return saved ? JSON.parse(saved) : ['Tomato', 'Garlic', 'Olive Oil', 'Pasta']; // friendly initial defaults
+      return saved ? JSON.parse(saved) : ['Oats', 'Rice', 'Soya Chunks', 'Greek Yogurt', 'Whey', 'Eggs', 'Lentils'];
     } catch (e) {
       console.error("Error loading pantry ingredients", e);
       return [];

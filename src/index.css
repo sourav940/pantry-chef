@@ -6,21 +6,19 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
 
-  --color-bg-dark: #0A0A0F;
-  --color-card-dark: #111118;
+  --color-bg-light: #F9F9FB;
+  --color-card-light: #FFFFFF;
   --color-brand-orange: #FF6B00;
   --color-brand-amber: #FFB300;
-  --color-text-primary: #F0F0F0;
-  --color-text-secondary: #888888;
-  --color-match-green: #00E676;
-  --color-match-red: #FF4444;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-match-green: #00C853;
+  --color-match-red: #FF3D00;
 
   --animate-spring-in: spring-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-heartbeat: heartbeat 1.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
   --animate-chef-shimmer: chef-shimmer 4s ease-in-out infinite;
-  --animate-fade-up: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   @keyframes spring-in {
     0% {
@@ -42,102 +40,80 @@
   }
   @keyframes pulse-glow {
     0%, 100% {
-      box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4);
+      box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.25);
     }
     50% {
-      box-shadow: 0 0 0 8px rgba(255, 107, 0, 0);
-    }
-  }
-  @keyframes heartbeat {
-    0%, 100% {
-      transform: scale(1);
-    }
-    25% {
-      transform: scale(1.15);
-    }
-    40% {
-      transform: scale(1.05);
-    }
-    55% {
-      transform: scale(1.25);
-    }
-    70% {
-      transform: scale(1.02);
+      box-shadow: 0 0 0 10px rgba(255, 107, 0, 0);
     }
   }
   @keyframes chef-shimmer {
     0%, 100% {
       transform: rotate(0deg) scale(1);
-      filter: drop-shadow(0 0 2px rgba(255, 107, 0, 0.4));
+      filter: drop-shadow(0 0 2px rgba(255, 107, 0, 0.2));
     }
     50% {
-      transform: rotate(180deg) scale(1.1);
-      filter: drop-shadow(0 0 12px rgba(255, 107, 0, 0.8));
-    }
-  }
-  @keyframes fade-up {
-    0% {
-      transform: translateY(24px);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
+      transform: rotate(180deg) scale(1.08);
+      filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5));
     }
   }
 }
 
-
-/* Custom premium culinary animations and aesthetics */
+/* Base Light-Mode Canvas Overlay with Soft Grid Lines */
 @layer base {
   body {
-    background-color: #0A0A0F;
+    background-color: #F9F9FB;
     background-image: 
-      radial-gradient(rgba(255, 107, 0, 0.05) 1px, transparent 1px), 
-      radial-gradient(rgba(255, 107, 0, 0.05) 1px, #0A0A0F 1px);
+      linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
     background-size: 32px 32px;
-    background-position: 0 0, 16px 16px;
-    color: #F0F0F0;
+    background-position: center top;
+    color: #1A1A1A;
     font-family: var(--font-sans);
+    overflow-x: hidden;
   }
 }
 
-/* Drifting particles background keyframes */
-@keyframes float-drift {
+/* Horizontal Sliding Text Loops for background layer */
+@keyframes loop-left {
   0% {
-    transform: translateY(105vh) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.35;
-  }
-  90% {
-    opacity: 0.35;
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateY(-5vh) translateX(40px) rotate(360deg);
-    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
-.animate-drift {
-  animation: float-drift 15s linear infinite;
+@keyframes loop-right {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
-/* 3D tilt utility helpers */
+.animate-loop-left {
+  animation: loop-left 32s linear infinite;
+}
+
+.animate-loop-right {
+  animation: loop-right 32s linear infinite;
+}
+
 .preserve-3d {
   transform-style: preserve-3d;
 }
 
-/* Scrollbar customization for dark mode */
+/* Custom premium scrollbar for off-white canvas */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0F;
+  background: #F9F9FB;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1C1C24;
+  background: #E0E0E6;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -156,5 +132,3 @@
     transform: none !important;
   }
 }
-
-
