@@ -47,16 +47,6 @@ export default function Header({ activeTab, setActiveTab, pantryCount }) {
         </button>
       </nav>
 
-      {/* User Session Profile Indicator Action */}
-      <div className="flex items-center gap-3">
-        <div className="text-right text-xs hidden sm:block">
-          <p className="text-zinc-400 font-medium">Daily Target</p>
-          <p className="text-zinc-500 font-bold">2400 kcal</p>
-        </div>
-        <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-sm text-amber-500 cursor-pointer hover:bg-zinc-700 transition-colors">
-          SY
-        </div>
-      </div>
     </header>
   );
 }
