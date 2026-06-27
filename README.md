@@ -123,7 +123,3 @@ npm run lint
 ```
 
 ---
-
-## License
-
-This project is for educational and portfolio purposes.
