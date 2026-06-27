@@ -221,7 +221,7 @@ export default function Home({ activeTab = 'finder', setActiveTab }) {
           </section>
 
           {/* KINETIC 3D SLIDING TEXT TRACKS */}
-          <section className="w-full relative z-10 py-2">
+          <section className="w-full relative z-10 py-2 hidden sm:block">
             <KineticTracks />
           </section>
 

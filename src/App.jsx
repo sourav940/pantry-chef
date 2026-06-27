@@ -33,7 +33,7 @@ function AppContent() {
       {/* Footer */}
       <footer className="py-8 border-t border-neutral-200/50 bg-[#F9F9FB]/60 backdrop-blur-md text-xs text-neutral-400 select-none">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-semibold font-mono">PANTRYPULSE // STITCH ENGINE ENGINE_SYNC: OK</p>
+          <p className="font-semibold font-mono">PANTRYPULSE // ENGINE_SYNC: OK</p>
           <p className="flex items-center gap-1.5 font-light">
             <span>Designed for 100% inventory utilization</span>
             <span className="w-1.5 h-1.5 rounded-full bg-brand-orange"></span>

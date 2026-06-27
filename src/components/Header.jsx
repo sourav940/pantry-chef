@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Header({ activeTab, setActiveTab, pantryCount }) {
   return (
-    <header className="w-full border-b border-zinc-800 bg-zinc-950 px-6 py-4 flex items-center justify-between text-white">
+    <header className="w-full border-b border-zinc-800 bg-zinc-950 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 text-white">
       {/* Brand Identity Branding Logo */}
       <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('finder')}>
         <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-black text-lg">
@@ -12,7 +12,7 @@ export default function Header({ activeTab, setActiveTab, pantryCount }) {
       </div>
 
       {/* Main Core Application Utility Navigation Links */}
-      <nav className="flex items-center gap-8 text-sm font-medium text-zinc-400">
+      <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs sm:text-sm font-medium text-zinc-400">
         <button 
           onClick={() => setActiveTab('finder')}
           className={`hover:text-white transition-colors cursor-pointer ${activeTab === 'finder' ? 'text-amber-500 font-semibold' : ''}`}
